@@ -122,6 +122,7 @@ func (r *ReconcileMonkey) Reconcile(request reconcile.Request) (reconcile.Result
 
 	err = r.client.Delete(context.TODO(), dead_pod)
 
+    return reconcile.Result{Requeue: true}, nil
 
 	for _, pod := range podList.Items {
 		reqLogger.Info("Found pod", "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
