@@ -1,0 +1,7 @@
+apiVersion: monkey.goforecrew.com/v1alpha1
+kind: Monkey
+metadata:
+  name: example-monkey
+spec:
+  # Add fields here
+  size: 3
