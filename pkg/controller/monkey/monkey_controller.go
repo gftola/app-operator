@@ -100,6 +100,16 @@ func (r *ReconcileMonkey) Reconcile(request reconcile.Request) (reconcile.Result
 		return reconcile.Result{}, err
 	}
 
+	podList := &corev1.podList{}
+	opts := &client.ListOptions{}
+
+	err := r.client.List(context.TODO(), opts, podList)
+	if err != nil {
+		// to do jotain
+	}
+
+
+
 	// Define a new Pod object
 	pod := newPodForCR(instance)
 
