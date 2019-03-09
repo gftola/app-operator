@@ -2,6 +2,7 @@ package monkey
 
 import (
 	"context"
+	"math/rand"
 
 	monkeyv1alpha1 "github.com/gftola/app-operator/pkg/apis/monkey/v1alpha1"
 
@@ -104,13 +105,18 @@ func (r *ReconcileMonkey) Reconcile(request reconcile.Request) (reconcile.Result
 	opts := &client.ListOptions{}
 
 	err = r.client.List(context.TODO(), opts, podList)
-	if err != nil {
-		return reconcile.Result{}, err
+	randomPod := rand.Intn(len(podList.Items))
+	if err != nil && errors.IsNotFound(err) {
+		reqLogger.Info("Deleted pod: ", podList.Items[randomPod].Name)
+		err = r.client.Delete(context.TODO(), podList.Items())
+		if err != nil {
+			return reconcile.Result{}, err
+		}
 	}
 
 	for _, pod := range podList.Items {
-        reqLogger.Info("Found pod", "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
-    }
+		reqLogger.Info("Found pod", "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
+	}
 
 	// Define a new Pod object
 	pod := newPodForCR(instance)
