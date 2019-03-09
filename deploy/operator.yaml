@@ -16,7 +16,7 @@ spec:
       containers:
         - name: app-operator
           # Replace this with the built image name
-          image: eu.gcr.io/bearded-happiness-222607/monkey:0.6
+          image: eu.gcr.io/bearded-happiness-222607/monkey:0.7
           command:
           - app-operator
           imagePullPolicy: Always

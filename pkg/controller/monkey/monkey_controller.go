@@ -104,25 +104,22 @@ func (r *ReconcileMonkey) Reconcile(request reconcile.Request) (reconcile.Result
 	podList := &corev1.PodList{}
 	opts := &client.ListOptions{}
 
-	err = r.client.List(context.TODO(), opts, podList)
-	if err != nil {
-		return reconcile.Result{}, err
-	}
-
 	randomPod := rand.Intn(len(podList.Items))
+	deadPod := &corev1.Pod{}
 
-	dead_pod := &corev1.Pod{}
-
-	err = r.client.Get(context.TODO(), client.ObjectKey{
-		Namespace: podList.Items[randomPod].Namespace,
-		Name:      podList.Items[randomPod].Name,
-	}, dead_pod)
-
-	reqLogger.Info("Deleting pod", "DeadPod.Name", dead_pod.Name)
-
-	err = r.client.Delete(context.TODO(), dead_pod)
-
-    return reconcile.Result{Requeue: true}, nil
+	err = r.client.List(context.TODO(), opts, podList)
+	if err != nil && errors.IsNotFound(err) {
+		err = r.client.Get(context.TODO(), client.ObjectKey{
+			Namespace: podList.Items[randomPod].Namespace,
+			Name:      podList.Items[randomPod].Name,
+		}, deadPod)
+		reqLogger.Info("Deleting pod", "DeadPod.Name", deadPod.Name)
+		err = r.client.Delete(context.TODO(), deadPod)
+		if err != nil {
+			return reconcile.Result{}, err
+		}
+		return reconcile.Result{Requeue: true}, nil
+	}
 
 	for _, pod := range podList.Items {
 		reqLogger.Info("Found pod", "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
